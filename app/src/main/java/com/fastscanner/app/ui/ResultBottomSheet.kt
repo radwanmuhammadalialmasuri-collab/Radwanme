@@ -33,11 +33,14 @@ fun ResultBottomSheet(
     val context = LocalContext.current
     val rawValue = barcode.rawValue ?: "لا توجد بيانات"
     val formatName = when (barcode.format) {
+        Barcode.FORMAT_DATA_MATRIX -> "رمز دقيق (Data Matrix)"
         Barcode.FORMAT_QR_CODE -> "رمز QR سريع"
-        Barcode.FORMAT_EAN_13, Barcode.FORMAT_EAN_8 -> "رمز منتج (EAN)"
+        Barcode.FORMAT_EAN_13, Barcode.FORMAT_EAN_8 -> "رمز منتج تجاري (EAN)"
         Barcode.FORMAT_UPC_A, Barcode.FORMAT_UPC_E -> "رمز تسوق (UPC)"
-        Barcode.FORMAT_CODE_128, Barcode.FORMAT_CODE_39 -> "رمز شريطي كودي"
-        else -> "رمز شريطي"
+        Barcode.FORMAT_CODE_128, Barcode.FORMAT_CODE_39 -> "رمز تسلسلي (Code 128)"
+        Barcode.FORMAT_AZTEC -> "رمز Aztec"
+        Barcode.FORMAT_PDF417 -> "رمز PDF417"
+        else -> "رمز شريطي رقمي"
     }
 
     ModalBottomSheet(
@@ -68,7 +71,7 @@ fun ResultBottomSheet(
             Text(
                 text = rawValue,
                 style = MaterialTheme.typography.bodyLarge,
-                fontSize = 18.sp,
+                fontSize = 17.sp,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -82,7 +85,6 @@ fun ResultBottomSheet(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                // زر النسخ
                 Button(
                     onClick = {
                         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -96,7 +98,6 @@ fun ResultBottomSheet(
                     Text("نسخ")
                 }
 
-                // فتح كرابط إذا كان URL
                 if (barcode.valueType == Barcode.TYPE_URL || rawValue.startsWith("http://") || rawValue.startsWith("https://")) {
                     Button(
                         onClick = {
@@ -110,7 +111,6 @@ fun ResultBottomSheet(
                         Text("فتح")
                     }
                 } else {
-                    // زر البحث في جوجل
                     Button(
                         onClick = {
                             val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/search?q=$rawValue"))
@@ -124,7 +124,6 @@ fun ResultBottomSheet(
                     }
                 }
 
-                // زر المشاركة
                 OutlinedButton(
                     onClick = {
                         val sendIntent = Intent().apply {
